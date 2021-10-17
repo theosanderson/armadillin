@@ -30,5 +30,8 @@ or
 armadillin https://cog-uk.s3.climb.ac.uk/phylogenetics/latest/cog_alignment.fasta.gz > output.tsv
 ```
 
+## Training your own models
+While training code is in the repo it is not quite in working order today and needs a little work.
+
 ## Related tools
 [Pangolin](https://github.com/cov-lineages/pangolin) is the OG for assigning lineages
