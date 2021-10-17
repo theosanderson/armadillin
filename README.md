@@ -9,7 +9,7 @@ Armadillin uses dense neural networks for assignment, which means it doesn't hav
 ```
 conda create --name armadillin python=3.9
 conda activate armadillin
-pip install armadillin
+pip3 install armadillin
 ```
 
 ## Usage
