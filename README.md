@@ -1,5 +1,5 @@
 # Armadillin
-A Re-engineered Method Allowing DetermInation of viraL LINeages
+_A Re-engineered Method Allowing DetermInation of viraL LINeages_
 
 Armadillin is an experimental alternative approach that trains models on [lineages designated by the PANGO team](https://github.com/cov-lineages/pango-designation).
 
