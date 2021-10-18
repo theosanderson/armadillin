@@ -124,7 +124,7 @@ def load_saved_model(filename):
                                                recall_m,
                                                "MultiplyByWeights":
                                                MultiplyByWeights
-                                           })
+                                           }, compile=False)
         return model
 
 

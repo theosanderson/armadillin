@@ -19,6 +19,8 @@ args = argparser.parse_args()
 import os
 import pandas as pd
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+
 if(args.disable_gpu):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -28,7 +30,7 @@ from . import input
 import numpy as np
 import pkg_resources
 
-print("We're about to import tensorflow - if you see a lot of warnings don't panic", file=sys.stderr)
+print("Welcome to Armadillin", file=sys.stderr)
 print("", file=sys.stderr)
 
 
