@@ -110,3 +110,18 @@ def apply_mask_to_seq_iterator(seq_iterator, selected_indices):
 def apply_numpy_to_seq_iterator(seq_iterator):
     for seq_id, seq in seq_iterator:
         yield seq_id, string_to_one_hot_numpy(seq)
+
+
+
+def batch_singles(iterator, batch_size):
+    batch = []
+    while True:
+        try:
+            batch.append(next(iterator))
+            if len(batch) == batch_size:
+                yield np.stack(batch)
+                batch = []
+        except StopIteration:
+            if len(batch) > 0:
+                yield np.stack(batch)
+            return

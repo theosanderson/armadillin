@@ -122,16 +122,3 @@ def yield_batch_of_examples(type, batch_size):
                                                           for x in batch]))
 
 
-def batch_singles(iterator, batch_size):
-    batch = []
-    while True:
-        try:
-            batch.append(next(iterator))
-            if len(batch) == batch_size:
-                yield np.stack(batch)
-                batch = []
-        except StopIteration:
-            if len(batch) > 0:
-                yield np.stack(batch)
-            return
-
