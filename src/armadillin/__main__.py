@@ -80,3 +80,8 @@ while True:
         if len(large_batch_seq_names) > 0:
             do_predictions(large_batch_seq_names, large_batch_seq_numpys)
         break
+
+
+def main():
+    # Sorry for this hack
+    pass
