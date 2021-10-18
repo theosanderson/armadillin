@@ -32,11 +32,11 @@ def f1_m(y_true, y_pred):
 
 
 prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
-end_step = 400 * 50
+end_step = 400 * 100
 pruning_params = {
     'pruning_schedule':
     tfmot.sparsity.keras.PolynomialDecay(initial_sparsity=0.01,
-                                         final_sparsity=0.90,
+                                         final_sparsity=0.85,
                                          begin_step=400 * 5,
                                          end_step=end_step)
 }

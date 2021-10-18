@@ -30,7 +30,14 @@ def make_character_lookup_table(alphabet):
 character_lookup_table = make_character_lookup_table(alphabet)
 
 
-def string_to_one_hot_numpy(string):
+def string_to_one_hot_numpy(string, target_length = None):
+    if target_length:
+        if len(string)> target_length:
+            string = string[0:target_length]
+        if len(string) < target_length:
+            # pad string to desired length
+            string = string + "n" * (target_length - len(string))
+        
     as_numbers = string_to_ints(string)
 
     return character_lookup_table[as_numbers]
@@ -45,27 +52,7 @@ ref_numpy = string_to_one_hot_numpy(cov2_genome.seq.lower()[0:29891])
 assignments = pd.read_csv(  pkg_resources.resource_stream(__name__, 'trained_model/lineages.csv'))
 
 
-# Have removed the stuff below as it is only needed for training, todo refactor:
-IS_TRAINING = False
-if IS_TRAINING:
-    metadata = pd.read_csv("oct_metadata_cut.tsv",
-                        sep="\t",
-                        usecols=["strain", "gisaid_epi_isl"])
 
-    #metadata.to_csv("oct_metadata_cut.tsv", sep="\t", index=False)
-
-    epi_to_name = dict(zip(metadata["gisaid_epi_isl"], metadata["strain"]))
-
-    name_to_taxon = dict(zip(assignments['taxon'], assignments['lineage']))
-
-    epi_to_taxon = {
-    epi: name_to_taxon[name]
-    for epi, name in epi_to_name.items() if name in name_to_taxon
-    }
-
-    all_epis = list(epi_to_name.keys())
-
-    del metadata
 
 aliases = json.load(
 
@@ -95,122 +82,11 @@ lineage_to_level = dict(
 
 
 
-def get_multi_hot_from_lineage(lineage):
-    multi_hot = np.zeros(len(all_lineages), dtype=np.float32)
-
-    while True:
-        if lineage in lineage_to_index:
-            multi_hot[lineage_to_index[lineage]] = 1
-        if "." in lineage:
-            subparts = lineage.split(".")
-            lineage = ".".join(subparts[:-1])
-            continue
-        elif lineage in aliases and aliases[lineage] != "":
-            lineage = aliases[lineage]
-            continue
-        else:
-            assert lineage == "A" or lineage == "B"
-            break
-    return multi_hot
-
-
-
 
 lineage_to_index = dict(zip(all_lineages, range(len(all_lineages))))
 
 
-import random
-
-
-def random_sample_from_list(the_list, proportion):
-    return random.sample(the_list, int(proportion * len(the_list)))
-
-
-num_shards = 200
-all_shards = range(num_shards)
-train_shards = random_sample_from_list(all_shards, 0.8)
-test_shards = list(set(all_shards) - set(train_shards))
-
-import gzip
-
-
-def yield_examples(shards):
-    while True:
-        for shard_num in shards:
-            file = open(f"shards/seq_shard_{shard_num}.tsv")
-            for line in file:
-                epi, seq = line.strip().split("\t")
-                if epi in epi_to_taxon:
-                    lineage = epi_to_taxon[epi]
-                    lineage_numpy = get_multi_hot_from_lineage_with_cache(
-                        lineage)
-                    #print(seq)
-                    yield (string_to_one_hot_numpy(seq), lineage_numpy)
-
-
-lineage_cache = {}
-
-
-def get_multi_hot_from_lineage_with_cache(lineage):
-    # check if lineage is a list, and raise error if so:
-
-    if lineage in lineage_cache:
-        return lineage_cache[lineage]
-    lineage_numpy = get_multi_hot_from_lineage(lineage)
-    lineage_cache[lineage] = lineage_numpy
-    return lineage_numpy
-
-
-
-dropout_prob = 0.1
-#ref_dropout_prob = 0.05
-
-
-def add_dropout(generator):
-    while True:
-        seq, lineage = next(generator)
-        random_values = np.random.random((seq.shape[0], 1))
-        seq = np.where(
-            random_values > dropout_prob  #+ ref_dropout_prob
-            ,
-            seq,
-            0)
-
-        # seq = np.where(random_values < ref_dropout_prob, ref_numpy, seq)
-        yield (seq, lineage)
-
-
-def get_typed_examples(type):
-    if type == "train":
-        return add_dropout(yield_examples(train_shards))
-        return yield_examples(train_shards)
-    elif type == "test":
-        return yield_examples(test_shards)
-
-
-def yield_batch_of_examples(type, batch_size):
-    example_iterator = get_typed_examples(type)
-    while True:
-        batch = [next(example_iterator) for _ in range(batch_size)]
-        yield (np.stack([x[0] for x in batch]), np.stack([x[1]
-                                                          for x in batch]))
-
-
-def batch_singles(iterator, batch_size):
-    batch = []
-    while True:
-        try:
-            batch.append(next(iterator))
-            if len(batch) == batch_size:
-                yield np.stack(batch)
-                batch = []
-        except StopIteration:
-            if len(batch) > 0:
-                yield np.stack(batch)
-            return
-
-
-def yield_from_fasta(filename="./cog_alignment.fa", mask=None):
+def yield_from_fasta(filename, mask=None):
     if filename.endswith(".gz"):
         handle = gzip.open(filename, "rt")
     else:
