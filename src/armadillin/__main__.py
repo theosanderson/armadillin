@@ -69,6 +69,8 @@ input_iterator = input.apply_numpy_to_seq_iterator(input_iterator)
 large_batch_size = 5000
 large_batch_seq_names = []
 large_batch_seq_numpys = []
+
+print("Predicting...", file=sys.stderr)
 while True:
     try:
         sequence_name, sequence_numpy = next(input_iterator)
