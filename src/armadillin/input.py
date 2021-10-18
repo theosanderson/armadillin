@@ -5,6 +5,7 @@ from . import cov2_genome
 import pkg_resources
 import json
 alphabet = "acgt-"
+import gzip
 
 from collections import defaultdict
 
