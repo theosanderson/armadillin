@@ -36,7 +36,7 @@ gen = training_input.yield_batch_of_examples("train", batch_size)
 
 # Callback to save model
 checkpoint = tf.keras.callbacks.ModelCheckpoint(
-    filepath="/home/theo/sandslash/checkpoints2/checkpoint.h5",
+    filepath="/home/theo/sandslash/checkpoints3/checkpoint.h5",
     monitor='val_f1_m',
     verbose=1,
     mode='max',
@@ -57,7 +57,7 @@ for i in range(100):
             tfmot.sparsity.keras.PruningSummaries(log_dir="./pruning_logs"),
             checkpoint
         ])
-    model.save(f"/home/theo/sandslash/checkpoints2/model2_{i}.h5",
+    model.save(f"/home/theo/sandslash/checkpoints3/model2_{i}.h5",
                include_optimizer=True,
                save_format='h5',
                overwrite=True)

@@ -1,9 +1,33 @@
 import pandas as pd
 import lzma
+import numpy as np
 
+# Increase number of rows to print for pandas
+pd.set_option('display.max_rows', 50)
+pd.set_option('display.min_rows', 50)
 assignments = pd.read_csv("/home/theo/pango-designation/lineages.csv")
 
-lineage_counts = assignments['lineage'].value_counts().to_dict()
+total_sampling = 1
+
+lineage_counts = assignments['lineage'].value_counts().to_frame()
+
+print(f"AY.4 starting count is {lineage_counts['lineage']['AY.4']}")
+print(f"AY.6 starting count is {lineage_counts['lineage']['AY.6']}")
+
+
+lineage_counts['nonlinear'] =lineage_counts['lineage']**.88
+lineage_counts['nonlinear_ratio'] =lineage_counts['nonlinear'].sum()/ lineage_counts['nonlinear'] 
+lineage_counts['nonlinear_ratio'] = lineage_counts['nonlinear_ratio']  / 1000
+lineage_counts['expectation'] = lineage_counts['lineage'] * lineage_counts['nonlinear_ratio']
+
+
+print(lineage_counts)
+print(lineage_counts['expectation'].sum())
+print(lineage_counts['nonlinear_ratio']['AY.6'])
+
+print(f"AY.4 expected count is {lineage_counts['expectation']['AY.4']}")
+print(f"AY.6 expected count is {lineage_counts['expectation']['AY.6']}")
+
 
 
 metadata = pd.read_csv("/home/theo/sandslash/oct_metadata_cut.tsv",
@@ -29,10 +53,10 @@ import tqdm
 import random
 
 def write_to_random_handle(epi,seq
-):
+,lineage):
     random_handle = file_handles[random.randint(
         0, number_of_shards - 1)]
-    random_handle.write(f"{epi}\t{seq}\n")
+    random_handle.write(f"{epi}\t{seq}\t{lineage}\n")
 
 seq_is_good = False
 import random
@@ -42,17 +66,13 @@ if True:
             if line.startswith(">"):
                 if current_epi and seq_is_good:
                     lineage = name_to_taxon[epi_to_name[current_epi]]
-                    if lineage_counts[lineage] >2000:
-                        times_over_represented = lineage_counts[lineage] / 2000
-                        if random.random() < (1/times_over_represented):
-                            write_to_random_handle(current_epi, cur_seq)
-                    elif lineage_counts[lineage] >1000:
-                        write_to_random_handle(current_epi, cur_seq)
+                    times_to_sample = lineage_counts['nonlinear_ratio'][lineage]
+                    if times_to_sample > 1:
+                        for i in range(int(times_to_sample)):
+                            write_to_random_handle(current_epi, cur_seq, lineage)
                     else:
-                        times_to_write = int(500/lineage_counts[lineage])
-                        times_to_write = min(times_to_write, 100)
-                        for i in range(times_to_write):
-                            write_to_random_handle(current_epi, cur_seq)
+                        if random.random() < times_to_sample:
+                            write_to_random_handle(current_epi, cur_seq, lineage)
 
                 current_epi = line.strip()[1:]
                 if current_epi in epi_to_name and epi_to_name[

@@ -66,7 +66,7 @@ def yield_examples(shards):
         for shard_num in shards:
             file = open(f"/home/theo/sandslash/shards/seq_shard_{shard_num}.tsv")
             for line in file:
-                epi, seq = line.strip().split("\t")
+                epi, seq, lineage = line.strip().split("\t")
                 if epi in epi_to_taxon:
                     lineage = epi_to_taxon[epi]
                     lineage_numpy = get_multi_hot_from_lineage_with_cache(
