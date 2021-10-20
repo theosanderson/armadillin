@@ -1,7 +1,6 @@
 # Armadillin
 
-# DO NOT USE WITH CURRENT MODELS.
-
+### The recommended method for calling lineages remains normal Pangolin: https://github.com/cov-lineages/pangolin
 
 _A Re-engineered Method Allowing DetermInation of viraL LINeages_
 
