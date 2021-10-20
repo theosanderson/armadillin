@@ -80,7 +80,7 @@ def build_model(config):
 
     if config['mode'] == "pruning_style":
         x = Flatten(name="flatten")(input)
-        x = MultiplyByWeights(weight_reg_value=1e-6, name="local_1")(x)
+        x = MultiplyByWeights(weight_reg_value=1e-7, name="local_1")(x)
     else:
         x = Flatten(name="flatten")(input)
 

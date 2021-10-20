@@ -49,7 +49,7 @@ def main():
         model = modelling.build_pruning_model(config,model,pruning_params={
     'pruning_schedule':
     tfmot.sparsity.keras.PolynomialDecay(initial_sparsity=0.0,
-                                         final_sparsity=0.9,
+                                         final_sparsity=0.95,
                                          begin_step=0 * 5,
                                          end_step = 400 * 100)
     })
