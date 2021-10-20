@@ -10,6 +10,7 @@ parser.add_argument('--do_pruning', action='store_true')
 parser.add_argument('--checkpoint_path',type=str)
 parser.add_argument('--disable_gpu', action='store_true')
 parser.add_argument('--use_wandb', action='store_true')
+parser.add_argument('--shard_dir', type=str)
 args = parser.parse_args()
 
 if args.disable_gpu:
@@ -91,11 +92,11 @@ def main():
         )
         wandb.init(project="sandslash", notes="", config=config)
         callbacks.append( WandbCallback(generator=training_input.yield_batch_of_examples(
-                   "test", batch_size),
+                   "test", batch_size, args.shard_dir),
                             validation_steps=20,
                            log_weights=True),)
 
-    gen = training_input.yield_batch_of_examples("train", batch_size)
+    gen = training_input.yield_batch_of_examples("train", batch_size, args.shard_dir)
 
 
 
@@ -107,7 +108,7 @@ def main():
             gen,
             steps_per_epoch=400,
             epochs=100,
-            validation_data=training_input.yield_batch_of_examples("test", batch_size),
+            validation_data=training_input.yield_batch_of_examples("test", batch_size,  args.shard_dir),
             validation_steps=50,
             callbacks=callbacks
             )

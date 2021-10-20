@@ -61,10 +61,10 @@ def get_multi_hot_from_lineage(lineage):
 
 
 
-def yield_examples(shards):
+def yield_examples(shards, shard_dir):
     while True:
         for shard_num in shards:
-            file = open(f"/home/theo/sandslash/shards/seq_shard_{shard_num}.tsv")
+            file = open(f"{shard_dir}/shard_{shard_num}.tsv")
             for line in file:
                 epi, seq, lineage = line.strip().split("\t")
                 if epi in epi_to_taxon:
@@ -107,15 +107,15 @@ def add_dropout(generator):
         yield (seq, lineage)
 
 
-def get_typed_examples(type):
+def get_typed_examples(type, shard_dir):
     if type == "train":
-        return add_dropout(yield_examples(train_shards))
+        return add_dropout(yield_examples(train_shards, shard_dir))
     elif type == "test":
-        return yield_examples(test_shards)
+        return yield_examples(test_shards,shard_dir)
 
 
-def yield_batch_of_examples(type, batch_size):
-    example_iterator = get_typed_examples(type)
+def yield_batch_of_examples(type, batch_size, shard_dir):
+    example_iterator = get_typed_examples(type, shard_dir)
     while True:
         batch = [next(example_iterator) for _ in range(batch_size)]
         yield (np.stack([x[0] for x in batch]), np.stack([x[1]

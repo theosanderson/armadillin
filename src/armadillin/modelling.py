@@ -80,7 +80,7 @@ def build_model(config):
 
 
     x = Flatten(name="flatten")(input)
-    x = MultiplyByWeights(weight_reg_value=1e-7, name="local_1")(x)
+    x = MultiplyByWeights(weight_reg_value=1e-8, name="local_1")(x)
 
 
     x = Dense(
