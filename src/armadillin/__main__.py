@@ -23,7 +23,7 @@ argparser.add_argument("--custom_full_model",
 
 argparser.add_argument("--chunk_size",
                           help="Chunk size for predictions",
-                          type=int, default=100)
+                          type=int, default=1000)
 
 args = argparser.parse_args()
 
