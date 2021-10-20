@@ -54,7 +54,7 @@ file.seek(1000)
 cur_seq = ""
 current_epi = ""
 
-number_of_shards = 200
+number_of_shards = 800
 file_handles = {}
 for i in range(number_of_shards):
     file_handles[i] = open(f"/home/theo/sandslash/shards/seq_shard_{i}.tsv", "wt")

@@ -109,12 +109,11 @@ def apply_mask_to_seq_iterator(seq_iterator, selected_indices):
 
 def apply_numpy_to_seq_iterator(seq_iterator):
     for seq_id, seq in seq_iterator:
-        yield seq_id, string_to_one_hot_numpy(seq)
+        yield seq_id, string_to_one_hot_numpy(seq).flatten()
 
 
 def apply_mask_to_numpy_iterator(seq_iterator, selected_indices):
-    for seq_id, one_hot_numpy in seq_iterator:
-        flat = one_hot_numpy.flatten()
+    for seq_id, flat in seq_iterator:
         masked_flat = flat[selected_indices]
         
         yield seq_id, masked_flat

@@ -78,11 +78,10 @@ def build_model(config):
                            dtype=tf.float32,
                            name="input")
 
-    if config['mode'] == "pruning_style":
-        x = Flatten(name="flatten")(input)
-        x = MultiplyByWeights(weight_reg_value=1e-7, name="local_1")(x)
-    else:
-        x = Flatten(name="flatten")(input)
+
+    x = Flatten(name="flatten")(input)
+    x = MultiplyByWeights(weight_reg_value=1e-7, name="local_1")(x)
+
 
     x = Dense(
         500,
@@ -149,6 +148,8 @@ def compile_model(model, learning_rate):
 
 
 def create_pretrained_pruned_model(initial_model):
+
+
     masking_weights = initial_model.get_layer(
         "prune_low_magnitude_multiply_by_weights").get_weights()
     remaining_positions = np.where(masking_weights[0] != 0)[0]
@@ -169,9 +170,22 @@ def create_pretrained_pruned_model(initial_model):
     new_initial_weights = old_initial_weights
     new_initial_weights[0] = filtered
 
+    print(initial_model.summary())
+    for layer in initial_model.layers:
+        print(layer.name)
+
+    old_multipliers = masking_weights
+    new_multipliers = old_multipliers
+    new_multipliers[0] = old_multipliers[0][remaining_positions]
+
+    print(new_model.summary())
+
+
     for layer in new_model.layers:
         if layer.name == "initial_dense":
             layer.set_weights(new_initial_weights)
+        elif layer.name == "multiply_by_weights_1":
+            layer.set_weights(new_multipliers)
         else:
             layer.set_weights(
                 initial_model.get_layer(layer.name).get_weights())

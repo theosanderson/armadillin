@@ -18,6 +18,13 @@ argparser.add_argument("--threshold",
                             type=float,
                             default=0.01)
 
+argparser.add_argument("--custom_full_model",
+                          help="Path to custom full model", type=str)
+
+argparser.add_argument("--chunk_size",
+                          help="Chunk size for predictions",
+                          type=int, default=100)
+
 args = argparser.parse_args()
 
 
@@ -63,19 +70,25 @@ def do_predictions(sequence_names, sequence_numpys):
 
 
 
+if not args.custom_full_model:
+    model = modelling.load_saved_model(pkg_resources.resource_filename(__name__, 'trained_model/model_small.h5'))
+    #model, mask = modelling.create_pretrained_pruned_model(model)
+    mask = json.load(open(pkg_resources.resource_filename(__name__, 'trained_model/mask_small.json')))
 
-model = modelling.load_saved_model(pkg_resources.resource_filename(__name__, 'trained_model/model_small.h5'))
+else:
+    model = modelling.load_saved_model(args.custom_full_model)
+    mask = None
 
-#model, mask = modelling.create_pretrained_pruned_model(model)
-mask = json.load(open(pkg_resources.resource_filename(__name__, 'trained_model/mask_small.json')))
+
 
 filename = args.fasta_file
 input_iterator = input.yield_from_fasta(filename)
 input_iterator = input.apply_numpy_to_seq_iterator(input_iterator)
-input_iterator = input.apply_mask_to_numpy_iterator(input_iterator,
-                                                  mask)
+if mask:
+    input_iterator = input.apply_mask_to_numpy_iterator(input_iterator,
+                                                    mask)
 
-large_batch_size = 5000
+
 large_batch_seq_names = []
 large_batch_seq_numpys = []
 
@@ -85,7 +98,7 @@ while True:
         sequence_name, sequence_numpy = next(input_iterator)
         large_batch_seq_names.append(sequence_name)
         large_batch_seq_numpys.append(sequence_numpy)
-        if len(large_batch_seq_names) == large_batch_size:
+        if len(large_batch_seq_names) == args.chunk_size:
             do_predictions(large_batch_seq_names, large_batch_seq_numpys)
             large_batch_seq_names = []
             large_batch_seq_numpys = []
