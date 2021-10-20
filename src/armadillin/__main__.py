@@ -71,7 +71,7 @@ def do_predictions(sequence_names, sequence_numpys):
 
 
 if not args.custom_full_model:
-    model = modelling.load_saved_model(pkg_resources.resource_filename(__name__, 'trained_model/model_small.h5'))
+    model = modelling.load_saved_model(pkg_resources.resource_filename(__name__, 'trained_model/model_small.h5.gz'))
     #model, mask = modelling.create_pretrained_pruned_model(model)
     mask = json.load(open(pkg_resources.resource_filename(__name__, 'trained_model/mask_small.json')))
 
