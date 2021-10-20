@@ -7,6 +7,8 @@ from tensorflow import keras
 import tensorflow_model_optimization as tfmot
 from . import input
 import numpy as np
+import h5py
+import gzip
 
 
 def recall_m(y_true, y_pred):
@@ -32,14 +34,8 @@ def f1_m(y_true, y_pred):
 
 
 prune_low_magnitude = tfmot.sparsity.keras.prune_low_magnitude
-end_step = 400 * 100
-pruning_params = {
-    'pruning_schedule':
-    tfmot.sparsity.keras.PolynomialDecay(initial_sparsity=0.01,
-                                         final_sparsity=0.85,
-                                         begin_step=400 * 5,
-                                         end_step=end_step)
-}
+
+
 
 
 class MultiplyByWeights(keras.layers.Layer):
@@ -65,20 +61,26 @@ class MultiplyByWeights(keras.layers.Layer):
 
     def call(self, inputs):
 
-        reshaped_weights = K.reshape(self.w, (1, self.the_input_shape[1], 1))
+        reshaped_weights = K.reshape(self.w, self.the_input_shape[1:])
         return tf.math.multiply(inputs, reshaped_weights)
 
 
 def build_model(config):
 
-    input = tf.keras.Input(shape=(config['seq_length'],
+    if config['mode'] == "pretrained_pruned":
+        input = tf.keras.Input(shape=(config['features_length']),
+                           dtype=tf.float32,
+                           name="input")
+
+    else:
+        input = tf.keras.Input(shape=(config['seq_length'],
                                   len(config['alphabet'])),
                            dtype=tf.float32,
                            name="input")
 
     if config['mode'] == "pruning_style":
-        x = MultiplyByWeights(weight_reg_value=1e-6, name="local_1")(input)
-        x = Flatten(name="flatten")(x)
+        x = Flatten(name="flatten")(input)
+        x = MultiplyByWeights(weight_reg_value=1e-6, name="local_1")(x)
     else:
         x = Flatten(name="flatten")(input)
 
@@ -96,8 +98,11 @@ def build_model(config):
     return model
 
 
-def build_pruning_model(config):
-    model = build_model(config)
+def build_pruning_model(config, model = None, pruning_params = None):
+    if model is None:
+        model = build_model(config)
+
+    
 
     def prune_local(layer):
         if isinstance(layer, MultiplyByWeights):
@@ -113,8 +118,15 @@ def build_pruning_model(config):
 
 
 def load_saved_model(filename):
+    if filename.endswith(".h5.gz"):
+        f = gzip.open(filename, 'rb')
+        target = h5py.File(f)
+    else:
+        target = filename
+        
+
     with tfmot.sparsity.keras.prune_scope():
-        model = tf.keras.models.load_model(filename,
+        model = tf.keras.models.load_model(target,
                                            custom_objects={
                                                "f1_m":
                                                f1_m,
@@ -140,13 +152,12 @@ def create_pretrained_pruned_model(initial_model):
     masking_weights = initial_model.get_layer(
         "prune_low_magnitude_multiply_by_weights").get_weights()
     remaining_positions = np.where(masking_weights[0] != 0)[0]
-    #print(remaining_positions.shape)
 
     model_config = {
         "alphabet": input.alphabet,
         "all_lineages": input.all_lineages,
-        "seq_length": remaining_positions.shape[0],
-        "mode": "without_pruning"
+        "features_length": remaining_positions.shape[0],
+        "mode": "pretrained_pruned"
     }
     new_model = build_model(model_config)
 
@@ -154,13 +165,9 @@ def create_pretrained_pruned_model(initial_model):
         "initial_dense").get_weights()
     #print(old_initial_weights[0].shape)
     assert old_initial_weights[0].shape == (29891 * 5, 500)
-    reshaped = old_initial_weights[0].reshape((29891, 5, 500))
-    filtered = reshaped[remaining_positions, :, :]
+    filtered = old_initial_weights[0][remaining_positions, :]
     new_initial_weights = old_initial_weights
-    filtered = filtered.squeeze()
-    #print(filtered.shape)
-    new_initial_weights[0] = filtered.reshape(
-        (filtered.shape[0] * filtered.shape[1], filtered.shape[2]))
+    new_initial_weights[0] = filtered
 
     for layer in new_model.layers:
         if layer.name == "initial_dense":

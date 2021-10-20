@@ -13,6 +13,11 @@ argparser.add_argument("--disable_gpu",
                        help="Don't use the GPU",
                        action="store_true")
 
+argparser.add_argument("--threshold",
+                          help="Threshold for predictions",
+                            type=float,
+                            default=0.01)
+
 args = argparser.parse_args()
 
 
@@ -41,16 +46,20 @@ def do_predictions(sequence_names, sequence_numpys):
     results = model.predict(batched_numpys)
 
     for i, result in enumerate(results):
-        somewhat_positive = np.where(result > 0.1)[0]
-        positive = np.where(result > 0.5)[0]
+        
+        positive = np.where(result > args.threshold)[0]
         positive_lineages = [input.all_lineages[x] for x in positive]
-        sorted_by_level = sorted(positive_lineages,
-                                 key=lambda x: input.lineage_to_level[x],
-                                 reverse=True)
+        levels = [input.lineage_to_level[x] for x in positive_lineages]
+        max_level = max(levels)
+        positive_lineages_at_max = [x for x in positive_lineages if input.lineage_to_level[x] == max_level]
+        lineage_to_results = dict(zip(input.all_lineages, result))
+        ordered_by_result = sorted(positive_lineages_at_max, key=lambda x: lineage_to_results[x], reverse=True)
+
+        
         details = "" if not args.detailed_predictions else "\t" + ", ".join([
-            f"{input.all_lineages[x]}:{result[x]}" for x in somewhat_positive
+            f"{input.all_lineages[x]}:{result[x]}" for x in positive
         ])
-        print(f"{sequence_names[i]}\t{sorted_by_level[0]}{details}")
+        print(f"{sequence_names[i]}\t{ordered_by_result[0]}{details}")
 
 
 
@@ -62,9 +71,9 @@ mask = json.load(open(pkg_resources.resource_filename(__name__, 'trained_model/m
 
 filename = args.fasta_file
 input_iterator = input.yield_from_fasta(filename)
-input_iterator = input.apply_mask_to_seq_iterator(input_iterator,
-                                                  mask)
 input_iterator = input.apply_numpy_to_seq_iterator(input_iterator)
+input_iterator = input.apply_mask_to_numpy_iterator(input_iterator,
+                                                  mask)
 
 large_batch_size = 5000
 large_batch_seq_names = []

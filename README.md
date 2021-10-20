@@ -1,4 +1,8 @@
 # Armadillin
+
+# DO NOT USE WITH CURRENT MODELS.
+
+
 _A Re-engineered Method Allowing DetermInation of viraL LINeages_
 
 Armadillin is an experimental alternative approach to training models on [lineages designated by the PANGO team](https://github.com/cov-lineages/pango-designation).

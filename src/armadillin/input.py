@@ -112,7 +112,12 @@ def apply_numpy_to_seq_iterator(seq_iterator):
         yield seq_id, string_to_one_hot_numpy(seq)
 
 
-
+def apply_mask_to_numpy_iterator(seq_iterator, selected_indices):
+    for seq_id, one_hot_numpy in seq_iterator:
+        flat = one_hot_numpy.flatten()
+        masked_flat = flat[selected_indices]
+        
+        yield seq_id, masked_flat
 def batch_singles(iterator, batch_size):
     batch = []
     while True:
