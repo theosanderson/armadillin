@@ -16,7 +16,7 @@ argparser.add_argument("--disable_gpu",
 argparser.add_argument("--threshold",
                           help="Threshold for predictions",
                             type=float,
-                            default=0.01)
+                            default=0.5)
 
 argparser.add_argument("--custom_full_model",
                           help="Path to custom full model", type=str)
