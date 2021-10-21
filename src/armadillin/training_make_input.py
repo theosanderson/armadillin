@@ -39,9 +39,9 @@ print(f"B.1.1.7 starting count is {lineage_counts['lineage']['B.1.1.7']}")
 print(f"Q.1 starting count is {lineage_counts['lineage']['Q.1']}")
 
 
-lineage_counts['nonlinear'] =lineage_counts['lineage']**.33
+lineage_counts['nonlinear'] =lineage_counts['lineage']**.22
 lineage_counts['nonlinear_ratio'] =lineage_counts['nonlinear'].sum()/ lineage_counts['nonlinear'] 
-lineage_counts['nonlinear_ratio'] = lineage_counts['nonlinear_ratio']  / 1000
+lineage_counts['nonlinear_ratio'] = lineage_counts['nonlinear_ratio']  / 500
 lineage_counts['expectation'] = lineage_counts['lineage'] * lineage_counts['nonlinear_ratio']
 
 
@@ -83,7 +83,7 @@ filename = args.gisaid_mmsa
 file = lzma.open(filename, "rt")
 file.seek(1000)
 
-number_of_shards = 200
+number_of_shards = 400
 file_handles = {}
 
 def get_shard_path(i):

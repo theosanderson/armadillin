@@ -31,7 +31,7 @@ def random_sample_from_list(the_list, proportion):
     return random.sample(the_list, int(proportion * len(the_list)))
 
 
-num_shards = 200
+num_shards = 400
 all_shards = range(num_shards)
 train_shards = list(range(num_shards)) #random_sample_from_list(all_shards, 0.8)
 test_shards = random_sample_from_list(all_shards, 0.1)
