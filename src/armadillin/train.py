@@ -26,6 +26,27 @@ from . import input
 from . import training_input
 
 
+# Create a callback to print stuff
+class PrintZeros(tf.keras.callbacks.Callback):
+    def on_epoch_end(self, epoch, logs=None):
+        layer = self.model.get_layer(
+        "prune_low_magnitude_multiply_by_weights")
+        weights = layer.get_weights()[0]
+        num_zeros = np.sum(weights == 0)
+        num_non_zeros = np.sum(weights != 0)
+        print("Number of zeros:", num_zeros)
+        print("Number of non-zeros:", num_non_zeros)
+        percent = num_non_zeros / (num_zeros + num_non_zeros)
+        print("Proportion of non-zeros:", percent)
+        if percent<0.1:
+            model_filename = "/tmp/model_zeros.h5"
+            print("Saving model to", model_filename)
+            self.model.save(model_filename)
+
+
+
+
+
 def main():
     # iterator = yield_batch_of_examples("train", 10)
     # test_batch = next(iterator)
@@ -52,7 +73,7 @@ def main():
     tfmot.sparsity.keras.PolynomialDecay(initial_sparsity=0.0,
                                          final_sparsity=0.95,
                                          begin_step=0 * 5,
-                                         end_step = 400 * 100)
+                                         end_step = 400 * 10)
     })
 
     modelling.compile_model(model, learning_rate)
@@ -71,6 +92,10 @@ def main():
     # Check if checkpoint path exists and create it if not:
     if not os.path.exists(args.checkpoint_path):
         os.makedirs(args.checkpoint_path)
+
+    # Define a new callback to log the pruning history
+
+
 
     callbacks=[
            
@@ -95,6 +120,8 @@ def main():
                    "test", batch_size, args.shard_dir),
                             validation_steps=20,
                            log_weights=True),)
+    if args.do_pruning:
+        callbacks.append(PrintZeros())
 
     gen = training_input.yield_batch_of_examples("train", batch_size, args.shard_dir)
 

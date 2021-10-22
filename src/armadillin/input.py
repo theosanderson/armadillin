@@ -85,11 +85,16 @@ lineage_to_level = dict(
 
 
 lineage_to_index = dict(zip(all_lineages, range(len(all_lineages))))
-
+import lzma
 
 def yield_from_fasta(filename, mask=None):
     if filename.endswith(".gz"):
         handle = gzip.open(filename, "rt")
+    elif filename.endswith("tar.xz"):
+        handle = lzma.open(filename, "rt")
+        handle.seek(5000)
+    elif filename.endswith(".xz"):
+        handle = lzma.open(filename, "rt")
     else:
         handle = open(filename, "rt")
     for record in SeqIO.parse(handle, "fasta"):

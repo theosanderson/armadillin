@@ -2,6 +2,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 from . import modelling
 import json
+import numpy as np
 # Create argparser to capture input and output files
 import argparse
 parser = argparse.ArgumentParser(description='Create a small model for training')
@@ -21,12 +22,23 @@ if not os.path.exists(args.output):
     
 
 model = modelling.load_saved_model( args.input )
+layer = model.get_layer(
+"prune_low_magnitude_multiply_by_weights")
+weights = layer.get_weights()[0]
+num_zeros = np.sum(weights == 0)
+num_non_zeros = np.sum(weights != 0)
+print("Number of zeros:", num_zeros)
+print("Number of non-zeros:", num_non_zeros)
+print("Ratio:", num_zeros / num_non_zeros)
+
 model, mask = modelling.create_pretrained_pruned_model(model)
 
 output_model = f'{args.output}/model_small.h5'
 output_mask = f'{args.output}/mask_small.json'
 model.save(output_model)
 json.dump(mask.tolist(), open(output_mask, 'wt'))
+
+print(f"Mask size was: {len(mask)}")
 
 print(f"Model saved to {output_model}")
 print(f"Mask saved to {output_mask}")

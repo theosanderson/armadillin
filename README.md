@@ -42,8 +42,8 @@ armadillin https://cog-uk.s3.climb.ac.uk/phylogenetics/latest/cog_alignment.fast
 
 ```
 python -m armadillin.training_make_input --designations ~/gisaid/pango-designation-1.2.88/ --gisaid_meta_file ~/gisaid/metadata.tsv --gisaid_mmsa ~/gisaid/msa_2021-10-20.tar.xz --output ~/training_set_wed
-python -m armadillin.train --shard_dir ~/training_set_thur/ --use_wandb --checkpoint_path ~/checkpoint_thur_dense
-python -m armadillin.train --starting_model ~/checkpoint_thur_dense/checkpoint.h5 --use_wandb --checkpoint_path ~/checkpoint_thur_sparse --do_pruning
+python -m armadillin.train --shard_dir ~/training_set_thu/ --use_wandb --checkpoint_path ~/checkpoint_thur_dense
+python -m armadillin.train --starting_model ~/checkpoint_thur_dense/checkpoint.h5 --use_wandb --checkpoint_path ~/checkpoint_thur_sparse --do_pruning --shard_dir ~/training_set_thu/
  python -m armadillin.training_create_small_model -i ~/checkpoint_thur_sparse/checkpoint.h5
 ```
 
