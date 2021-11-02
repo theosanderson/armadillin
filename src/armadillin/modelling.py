@@ -10,6 +10,8 @@ import numpy as np
 import h5py
 import gzip
 
+NUM_INIT_FILTERS = 700
+
 
 def recall_m(y_true, y_pred):
     true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
@@ -84,7 +86,7 @@ def build_model(config):
 
 
     x = Dense(
-        500,
+        NUM_INIT_FILTERS,
         activation='relu',
         name="initial_dense",
     )(x)
@@ -165,7 +167,7 @@ def create_pretrained_pruned_model(initial_model):
     old_initial_weights = initial_model.get_layer(
         "initial_dense").get_weights()
     #print(old_initial_weights[0].shape)
-    assert old_initial_weights[0].shape == (29891 * 5, 500)
+    assert old_initial_weights[0].shape == (29891 * 5, NUM_INIT_FILTERS)
     filtered = old_initial_weights[0][remaining_positions, :]
     new_initial_weights = old_initial_weights
     new_initial_weights[0] = filtered

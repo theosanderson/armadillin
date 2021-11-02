@@ -83,18 +83,28 @@ lineage_to_level = dict(
 
 
 
-
+import tarfile
 lineage_to_index = dict(zip(all_lineages, range(len(all_lineages))))
 import lzma
+import zipfile
 
 def yield_from_fasta(filename, mask=None):
     if filename.endswith(".gz"):
         handle = gzip.open(filename, "rt")
     elif filename.endswith("tar.xz"):
-        handle = lzma.open(filename, "rt")
-        handle.seek(5000)
+        tar = tarfile.open(filename, "r:xz")
+        handle = tar.extractfile(tar.getmembers()[0])
     elif filename.endswith(".xz"):
         handle = lzma.open(filename, "rt")
+    elif filename.endswith(".zip"):
+        print(f"Opening {filename} as zip")
+        the_zip = zipfile.ZipFile(filename)
+        # iterate through all files recursively and find "genomic.fna"
+        for member in the_zip.infolist():
+            if member.filename.endswith("genomic.fna"):
+                handle = the_zip.open(member)
+                break
+            raise ValueError("Could not find genomic.fna in zip file")
     else:
         handle = open(filename, "rt")
     for record in SeqIO.parse(handle, "fasta"):

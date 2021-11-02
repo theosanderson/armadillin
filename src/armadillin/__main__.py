@@ -35,6 +35,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 if(args.disable_gpu):
     os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+    print("Using CPU", file=sys.stderr)
 
 
 from . import modelling

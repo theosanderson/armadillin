@@ -3,6 +3,37 @@ import lzma
 import numpy as np
 from Bio import SeqIO
 import os
+import re
+
+def clean_string(text, strip_symbols=False):
+    # strip accents
+    text = ''.join((c for c in unicodedata.normalize('NFD', text)
+                    if unicodedata.category(c) != 'Mn'))
+    # replace spaces with _
+    text = text.replace(' ', '_')
+
+    if strip_symbols:
+        p = re.compile(r'[^a-zA-Z0-9_/-]')
+        text = p.sub('', text)
+    return text
+
+
+def fix_header(header):
+    """
+    parse fasta header and remove problems
+    """
+    fixed_header = header.lstrip()\
+        .replace(' ', '_')\
+        .replace("hCoV-19/","")\
+        .replace("hCov-19/","")\
+        .replace("PENDING", "")\
+        .replace("UPLOADED", "")\
+        .replace("None", "")
+
+    fixed_header = re.sub('^Wuhan-Hu-1', 'China/Wuhan-Hu-1', fixed_header)
+    fixed_header = clean_string(fixed_header)
+
+    return (fixed_header)
 
 # Increase number of rows to print for pandas
 pd.set_option('display.max_rows', 50)
@@ -60,8 +91,7 @@ metadata = pd.read_csv(args.gisaid_meta_file,
 # rename Virus name to strain and Accession ID to gisaid_epi_isl
 metadata = metadata.rename(columns={"Virus name": "strain", "Accession ID": "gisaid_epi_isl"})
 #Replace spaces with underscores in strain
-metadata['strain'] = metadata['strain'].str.replace(' ', '_')
-metadata['strain'] = metadata['strain'].str.replace('hCoV-19/','')
+metadata['strain'] = metadata['strain'].apply(fix_header)
 
 epi_to_name = dict(zip(metadata["gisaid_epi_isl"], metadata["strain"]))
 
