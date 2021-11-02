@@ -1,6 +1,6 @@
 # Armadillin
 
-### The recommended method for calling lineages remains normal Pangolin: https://github.com/cov-lineages/pangolin
+### This is an experimental tool under development. The recommended method for calling lineages remains normal Pangolin: https://github.com/cov-lineages/pangolin
 
 _A Re-engineered Method Allowing DetermInation of viraL LINeages_
 
