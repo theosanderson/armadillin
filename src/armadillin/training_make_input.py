@@ -4,6 +4,8 @@ import numpy as np
 from Bio import SeqIO
 import os
 import re
+import unicodedata
+
 
 def clean_string(text, strip_symbols=False):
     # strip accents
@@ -56,6 +58,19 @@ if not os.path.exists(args.output):
 
 
 assignments = pd.read_csv(f"{args.designations}/lineages.csv")
+all_lineages = sorted(list(set(assignments['lineage'])))
+# save all_lineages to file
+with open(f"{args.output}/all_lineages.txt", "w") as f:
+    for l in all_lineages:
+        f.write(f"{l}\n")
+
+# read entire contents of aliases file
+aliases_file = open(f"{args.designations}/pango_designation/alias_key.json", "rt")
+
+# save contents of aliases to output
+with open(f"{args.output}/aliases.json", "w") as f:
+    for line in aliases_file:
+        f.write(line)
 
 
 

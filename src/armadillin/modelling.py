@@ -10,7 +10,7 @@ import numpy as np
 import h5py
 import gzip
 
-NUM_INIT_FILTERS = 700
+NUM_INIT_FILTERS = 1000
 
 
 def recall_m(y_true, y_pred):
@@ -155,10 +155,14 @@ def create_pretrained_pruned_model(initial_model):
     masking_weights = initial_model.get_layer(
         "prune_low_magnitude_multiply_by_weights").get_weights()
     remaining_positions = np.where(masking_weights[0] != 0)[0]
+    num_lineages = initial_model.get_layer(
+            "output_dense").output_shape[1]
+    print("Number of lineages: ", num_lineages)
+    
 
     model_config = {
         "alphabet": input.alphabet,
-        "all_lineages": input.all_lineages,
+        "all_lineages": list(range(num_lineages)),
         "features_length": remaining_positions.shape[0],
         "mode": "pretrained_pruned"
     }

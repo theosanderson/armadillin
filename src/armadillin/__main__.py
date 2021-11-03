@@ -45,10 +45,11 @@ import pkg_resources
 
 print("Welcome to Armadillin", file=sys.stderr)
 print("", file=sys.stderr)
+input_helper = input.Input(pkg_resources.resource_filename("armadillin", "trained_model"))
 
 
 def do_predictions(sequence_names, sequence_numpys):
-    batched_numpys = input.batch_singles(iter(sequence_numpys), 32)
+    batched_numpys = input_helper.batch_singles(iter(sequence_numpys), 32)
 
     
     results = model.predict(batched_numpys)
@@ -56,16 +57,16 @@ def do_predictions(sequence_names, sequence_numpys):
     for i, result in enumerate(results):
         
         positive = np.where(result > args.threshold)[0]
-        positive_lineages = [input.all_lineages[x] for x in positive]
-        levels = [input.lineage_to_level[x] for x in positive_lineages]
+        positive_lineages = [input_helper.all_lineages[x] for x in positive]
+        levels = [input_helper.lineage_to_level[x] for x in positive_lineages]
         max_level = max(levels)
-        positive_lineages_at_max = [x for x in positive_lineages if input.lineage_to_level[x] == max_level]
-        lineage_to_results = dict(zip(input.all_lineages, result))
+        positive_lineages_at_max = [x for x in positive_lineages if input_helper.lineage_to_level[x] == max_level]
+        lineage_to_results = dict(zip(input_helper.all_lineages, result))
         ordered_by_result = sorted(positive_lineages_at_max, key=lambda x: lineage_to_results[x], reverse=True)
 
         
         details = "" if not args.detailed_predictions else "\t" + ", ".join([
-            f"{input.all_lineages[x]}:{result[x]}" for x in positive
+            f"{input_helper.all_lineages[x]}:{result[x]}" for x in positive
         ])
         print(f"{sequence_names[i]}\t{ordered_by_result[0]}{details}")
 
@@ -83,10 +84,10 @@ else:
 
 
 filename = args.fasta_file
-input_iterator = input.yield_from_fasta(filename)
-input_iterator = input.apply_numpy_to_seq_iterator(input_iterator)
+input_iterator = input_helper.yield_from_fasta(filename)
+input_iterator = input_helper.apply_numpy_to_seq_iterator(input_iterator)
 if mask:
-    input_iterator = input.apply_mask_to_numpy_iterator(input_iterator,
+    input_iterator = input_helper.apply_mask_to_numpy_iterator(input_iterator,
                                                     mask)
 
 

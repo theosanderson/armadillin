@@ -8,6 +8,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Create a small model for training')
 parser.add_argument('-i', '--input', help='Input file', required=True)
 parser.add_argument('-o', '--output', help='Output file', default=None)
+parser.add_argument('-d', '--data', help='Data directory', default=None)
 
 
 
@@ -35,6 +36,9 @@ model, mask = modelling.create_pretrained_pruned_model(model)
 
 output_model = f'{args.output}/model_small.h5'
 output_mask = f'{args.output}/mask_small.json'
+
+os.system(f"cp {args.data}/all_lineages.txt {args.output}/all_lineages.txt")
+os.system(f"cp {args.data}/aliases.json {args.output}/aliases.json")
 model.save(output_model)
 json.dump(mask.tolist(), open(output_mask, 'wt'))
 

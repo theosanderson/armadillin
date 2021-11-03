@@ -22,7 +22,6 @@ import pandas as pd
 import lzma
 from . import modelling
 import tensorflow as tf
-from . import input
 from . import training_input
 
 
@@ -38,10 +37,10 @@ class PrintZeros(tf.keras.callbacks.Callback):
         print("Number of non-zeros:", num_non_zeros)
         percent = num_non_zeros / (num_zeros + num_non_zeros)
         print("Proportion of non-zeros:", percent)
-        if percent<0.1:
-            model_filename = "/tmp/model_zeros.h5"
-            print("Saving model to", model_filename)
-            self.model.save(model_filename)
+        if percent<0.04:
+             model_filename = "/tmp/model_zeros.h5"
+             print("Saving model to", model_filename)
+             self.model.save(model_filename)
 
 
 
@@ -54,9 +53,11 @@ def main():
     # print(test_batch[1].shape)
     # raise ValueError()
 
+    training_input_helper = training_input.TrainingInput(args.shard_dir)
+
     config = {
-            "alphabet": input.alphabet,
-            "all_lineages": input.all_lineages,
+            "alphabet": training_input.input.alphabet,
+            "all_lineages": training_input_helper.input_helper.all_lineages,
             "seq_length": 29891,
             "mode": "pruning_style"
         }
@@ -71,9 +72,9 @@ def main():
         model = modelling.build_pruning_model(config,model,pruning_params={
     'pruning_schedule':
     tfmot.sparsity.keras.PolynomialDecay(initial_sparsity=0.0,
-                                         final_sparsity=0.95,
+                                         final_sparsity=0.97,
                                          begin_step=0 * 5,
-                                         end_step = 400 * 10)
+                                         end_step = 400 * 5)
     })
 
     modelling.compile_model(model, learning_rate)
@@ -87,7 +88,7 @@ def main():
         monitor='val_f1_m',
         verbose=1,
         mode='max',
-        save_freq=400 * 10)
+        save_freq=400 * 5)
 
     # Check if checkpoint path exists and create it if not:
     if not os.path.exists(args.checkpoint_path):
@@ -116,14 +117,14 @@ def main():
 
         )
         wandb.init(project="sandslash", notes="", config=config)
-        callbacks.append( WandbCallback(generator=training_input.yield_batch_of_examples(
-                   "test", batch_size, args.shard_dir),
+        callbacks.append( WandbCallback(generator=training_input_helper.yield_batch_of_examples(
+                   "test", batch_size),
                             validation_steps=20,
                            log_weights=True),)
     if args.do_pruning:
         callbacks.append(PrintZeros())
 
-    gen = training_input.yield_batch_of_examples("train", batch_size, args.shard_dir)
+    gen = training_input_helper.yield_batch_of_examples("train", batch_size)
 
 
 
@@ -135,7 +136,7 @@ def main():
             gen,
             steps_per_epoch=400,
             epochs=100,
-            validation_data=training_input.yield_batch_of_examples("test", batch_size,  args.shard_dir),
+            validation_data=training_input_helper.yield_batch_of_examples("test", batch_size),
             validation_steps=50,
             callbacks=callbacks
             )

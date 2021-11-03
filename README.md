@@ -41,11 +41,12 @@ armadillin https://cog-uk.s3.climb.ac.uk/phylogenetics/latest/cog_alignment.fast
 ### Dataset generation
 
 ```
-python -m armadillin.training_make_input --designations ~/gisaid/pango-designation-1.2.88/ --gisaid_meta_file ~/gisaid/metadata.tsv --gisaid_mmsa ~/gisaid/msa_2021-10-20.tar.xz --output ~/training_set_wed
-python -m armadillin.train --shard_dir ~/training_set_thu/ --use_wandb --checkpoint_path ~/checkpoint_fri_dense_1500
-python -m armadillin.train --starting_model ~/checkpoint_fri_dense_1500_2/checkpoint.h5 --use_wandb --checkpoint_path ~/checkpoint_fri_1500_sparse --do_pruning --shard_dir ~/training_set_thu/
+python -m armadillin.training_make_input --designations ~/gisaid/pango-designation-1.2.88/ --gisaid_meta_file ~/gisaid/metadata.tsv --gisaid_mmsa ~/gisaid/msa_2021-10-20.tar.xz --output ~/training_set_nov_02
+ python -m armadillin.train --shard_dir /home/theo/training_set_nov_02 --use_wandb --checkpoint_path ~/nov2check1
 
- python -m armadillin.training_create_small_model -i ~/checkpoint_thur_sparse/checkpoint.h5
+ python -m armadillin.train --starting_model ~/nov2check1/checkpoint.h5 --use_wandb --checkpoint_path ~/nov2check1_sparse/ --do_pruning --shard_dir /home/theo/training_set_nov_02
+
+ python -m armadillin.training_create_small_model -i /tmp/model_zeros.h5 -d  /home/theo/training_set_nov_02
 ```
 
 ## Related tools
