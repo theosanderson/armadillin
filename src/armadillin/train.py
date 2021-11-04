@@ -11,6 +11,7 @@ parser.add_argument('--checkpoint_path',type=str)
 parser.add_argument('--disable_gpu', action='store_true')
 parser.add_argument('--use_wandb', action='store_true')
 parser.add_argument('--shard_dir', type=str)
+parser.add_argument('--epochs', type=int, default=None)
 args = parser.parse_args()
 
 if args.disable_gpu:
@@ -130,20 +131,18 @@ def main():
 
 
    
-    
-    for i in range(100):
-        model.fit_generator(
-            gen,
-            steps_per_epoch=400,
-            epochs=100,
-            validation_data=training_input_helper.yield_batch_of_examples("test", batch_size),
-            validation_steps=50,
-            callbacks=callbacks
-            )
-        model.save(f"{args.checkpoint_path}/model2_{i}.h5",
-                include_optimizer=True,
-                save_format='h5',
-                overwrite=True)
+    if args.epochs is None:
+        args.epochs = 1000000
+
+    model.fit_generator(
+        gen,
+        steps_per_epoch=400,
+        epochs=args.epochs,
+        validation_data=training_input_helper.yield_batch_of_examples("test", batch_size),
+        validation_steps=50,
+        callbacks=callbacks
+        )
+       
 
 if __name__ == "__main__":
     main()
