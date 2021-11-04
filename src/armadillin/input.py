@@ -76,8 +76,10 @@ class Input(object):
 
 
     def yield_from_fasta(self, filename, mask=None):
+        print(f"Attempting to read from fasta file {filename}")
         if filename.endswith(".gz"):
             handle = gzip.open(filename, "rt")
+            print("Using gzip mode")
         elif filename.endswith("tar.xz"):
             tar = tarfile.open(filename, "r:xz")
             members = tar.getmembers()
@@ -86,9 +88,12 @@ class Input(object):
             handle = tar.extractfile(largest_member)
             handle = io.TextIOWrapper(handle, encoding='windows-1252') 
             print("Using largest file as handle")
+            print("Using tarxz mode")
         elif filename.endswith(".xz"):
             handle = lzma.open(filename, "rt")
+            print("Using xz mode")
         elif filename.endswith(".zip"):
+            print("Using zip mode")
             print(f"Opening {filename} as zip")
             the_zip = zipfile.ZipFile(filename)
             # iterate through all files recursively and find "genomic.fna"
@@ -98,6 +103,7 @@ class Input(object):
                     break
                 raise ValueError("Could not find genomic.fna in zip file")
         else:
+            print("Using text mode")
             handle = open(filename, "rt")
         for record in SeqIO.parse(handle, "fasta"):
             if mask != None:
