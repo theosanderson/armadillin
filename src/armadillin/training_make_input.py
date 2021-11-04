@@ -5,6 +5,8 @@ from Bio import SeqIO
 import os
 import re
 import unicodedata
+import tarfile
+import io
 
 
 def clean_string(text, strip_symbols=False):
@@ -125,8 +127,18 @@ AY_6_epis = metadata[metadata['strain'].isin(AY_6_names)]['gisaid_epi_isl'].toli
 #raise ValueError((AY_6_epis))
 
 filename = args.gisaid_mmsa
-file = lzma.open(filename, "rt")
-file.seek(1000)
+
+
+
+if filename.endswith("tar.xz"):
+            tar = tarfile.open(filename, "r:xz")
+            members = tar.getmembers()
+            # find largest member:
+            largest_member = max(members, key=lambda x: x.size)
+            handle = tar.extractfile(largest_member)
+            handle = io.TextIOWrapper(handle) 
+            print("Using largest file as handle")
+            print("Using tarxz mode")
 
 number_of_shards = 400
 file_handles = {}
@@ -153,7 +165,7 @@ seq_is_good = False
 import random
 if True:
     with tqdm.tqdm(total=metadata_num_rows) as pbar:
-        for record in SeqIO.parse(file, "fasta"):
+        for record in SeqIO.parse(handle, "fasta"):
             pbar.update(1)
             epi = record.id
             seq = str(record.seq)
