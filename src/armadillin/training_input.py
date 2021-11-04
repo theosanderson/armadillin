@@ -1,6 +1,7 @@
 from . import input
 import pandas as pd
 import numpy as np
+import lzma
 
 import random
 
@@ -48,7 +49,7 @@ class TrainingInput(object):
     def yield_examples(self,shards):
         while True:
             for shard_num in shards:
-                file = open(f"{self.path}/shard_{shard_num}.tsv")
+                file = lzma.open(f"{self.path}/shard_{shard_num}.tsv.xz")
                 for line in file:
                     epi, seq, lineage = line.strip().split("\t")
 
