@@ -132,13 +132,20 @@ filename = args.gisaid_mmsa
 
 if filename.endswith("tar.xz"):
             tar = tarfile.open(filename, "r:xz")
-            members = tar.getmembers()
-            # find largest member:
-            largest_member = max(members, key=lambda x: x.size)
-            handle = tar.extractfile(largest_member)
+            while member is not None:
+                member = tar.next()
+                if tar.size>100000:
+                    break
+            if member is None:
+                raise ValueError("Could not find member")
+            
+            handle = tar.extractfile(member)
             handle = io.TextIOWrapper(handle) 
             print("Using largest file as handle")
             print("Using tarxz mode")
+            
+else:
+    handle = open(filename,"rt")
 
 number_of_shards = 400
 file_handles = {}
