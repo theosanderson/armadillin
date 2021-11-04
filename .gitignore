@@ -4,3 +4,4 @@ src/pruning_logs/*
 src/wandb/*
 src/checkpoints*
 src/non_sparse*
+.venv/**
