@@ -134,7 +134,7 @@ if filename.endswith("tar.xz"):
             tar = tarfile.open(filename, "r:xz")
             while True:
                 member = tar.next()
-                if tar.size>100000:
+                if member.size>100000:
                     break
             if member is None:
                 raise ValueError("Could not find member")
