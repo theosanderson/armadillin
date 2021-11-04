@@ -132,7 +132,7 @@ filename = args.gisaid_mmsa
 
 if filename.endswith("tar.xz"):
             tar = tarfile.open(filename, "r:xz")
-            while member is not None:
+            while True
                 member = tar.next()
                 if tar.size>100000:
                     break
