@@ -151,9 +151,9 @@ number_of_shards = 400
 file_handles = {}
 
 def get_shard_path(i):
-    return f"{args.output}/shard_{i}.tsv"
+    return f"{args.output}/shard_{i}.tsv.xz"
 for i in range(number_of_shards):
-    file_handles[i] = open(get_shard_path(i), "wt")
+    file_handles[i] = lzma.open(get_shard_path(i), "wt")
 
 import tqdm
 import random
@@ -203,11 +203,11 @@ for i in range(number_of_shards):
 
 # Now open each in turn, shuffle the lines, and write out again:
 for i in tqdm.tqdm(range(number_of_shards)):
-    handle = open(get_shard_path(i), "rt")
+    handle = lzma.open(get_shard_path(i), "rt")
     lines = handle.readlines()
     random.shuffle(lines)
     handle.close()
-    handle = open(get_shard_path(i), "wt")
+    handle = lzma.open(get_shard_path(i), "wt")
     handle.writelines(lines)
     handle.close()
 
