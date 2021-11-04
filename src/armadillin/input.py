@@ -79,7 +79,10 @@ class Input(object):
             handle = gzip.open(filename, "rt")
         elif filename.endswith("tar.xz"):
             tar = tarfile.open(filename, "r:xz")
-            handle = tar.extractfile(tar.getmembers()[0])
+            members = tar.getmembers()
+            # find largest member:
+            largest_member = max(members, key=lambda x: x.size)
+            handle = tar.extractfile(largest_member)
         elif filename.endswith(".xz"):
             handle = lzma.open(filename, "rt")
         elif filename.endswith(".zip"):
