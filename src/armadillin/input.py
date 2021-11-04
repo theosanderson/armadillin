@@ -84,7 +84,7 @@ class Input(object):
             # find largest member:
             largest_member = max(members, key=lambda x: x.size)
             handle = tar.extractfile(largest_member)
-            handle = io.TextIOWrapper(handle)
+            handle = io.TextIOWrapper(handle, encoding='windows-1252') 
         elif filename.endswith(".xz"):
             handle = lzma.open(filename, "rt")
         elif filename.endswith(".zip"):
