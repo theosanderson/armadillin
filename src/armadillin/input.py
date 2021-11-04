@@ -10,6 +10,7 @@ import tarfile
 alphabet = "acgt-"
 import gzip
 import os
+import io
 
 from collections import defaultdict
 
@@ -83,6 +84,7 @@ class Input(object):
             # find largest member:
             largest_member = max(members, key=lambda x: x.size)
             handle = tar.extractfile(largest_member)
+            handle = io.TextIOWrapper(handle)
         elif filename.endswith(".xz"):
             handle = lzma.open(filename, "rt")
         elif filename.endswith(".zip"):
