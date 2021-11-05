@@ -208,12 +208,16 @@ for i in range(number_of_shards):
 print("Beginning shuffle")
 # Now open each in turn, shuffle the lines, and write out again:
 for i in tqdm.tqdm(range(number_of_shards)):
+    print("opening this file")
     handle = open(get_shard_path(i), "rt")
+    
     lines = handle.readlines()
     random.shuffle(lines)
     handle.close()
+    print("loaded this file")
     handle = lzma.open(get_shard_path(i), "wt")
     handle.writelines(lines)
     handle.close()
 
 
+print("Shuffle complete")
