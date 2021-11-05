@@ -7,6 +7,7 @@ import re
 import unicodedata
 import tarfile
 import io
+import gzip
 
 
 def clean_string(text, strip_symbols=False):
@@ -153,7 +154,7 @@ file_handles = {}
 def get_shard_path(i):
     return f"{args.output}/shard_{i}.tsv.xz"
 for i in range(number_of_shards):
-    file_handles[i] = open(get_shard_path(i), "wt")
+    file_handles[i] = gzip.open(get_shard_path(i), "wt")
 
 import tqdm
 import random
@@ -209,7 +210,7 @@ print("Beginning shuffle")
 # Now open each in turn, shuffle the lines, and write out again:
 for i in tqdm.tqdm(range(number_of_shards)):
     print("opening this file")
-    handle = open(get_shard_path(i), "rt")
+    handle = gzip.open(get_shard_path(i), "rt")
     
     lines = handle.readlines()
     random.shuffle(lines)
