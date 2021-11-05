@@ -169,11 +169,15 @@ def write_to_random_handle(epi,seq
 
 seq_is_good = False
 
+total = 0
 import random
 if True:
     with tqdm.tqdm(total=metadata_num_rows) as pbar:
         for record in SeqIO.parse(handle, "fasta"):
             pbar.update(1)
+            total +=1
+            if total>10000:
+                break
             epi = record.id
             seq = str(record.seq)
             try:
@@ -196,11 +200,12 @@ if True:
                 if  rand_no< times_to_sample:
                      write_to_random_handle(epi, seq, lineage)
 
-   
+print("Completed, closing all files")
 # Now close all files:
 for i in range(number_of_shards):
     file_handles[i].close()
 
+print("Beginning shuffle")
 # Now open each in turn, shuffle the lines, and write out again:
 for i in tqdm.tqdm(range(number_of_shards)):
     handle = open(get_shard_path(i), "rt")
