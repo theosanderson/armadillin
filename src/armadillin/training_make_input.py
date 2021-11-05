@@ -152,7 +152,7 @@ number_of_shards = 400
 file_handles = {}
 
 def get_shard_path(i):
-    return f"{args.output}/shard_{i}.tsv.xz"
+    return f"{args.output}/shard_{i}.tsv.gz"
 for i in range(number_of_shards):
     file_handles[i] = gzip.open(get_shard_path(i), "wt")
 
@@ -216,7 +216,7 @@ for i in tqdm.tqdm(range(number_of_shards)):
     random.shuffle(lines)
     handle.close()
     print("loaded this file")
-    handle = lzma.open(get_shard_path(i), "wt")
+    handle = gzip.open(get_shard_path(i), "wt")
     handle.writelines(lines)
     handle.close()
 
