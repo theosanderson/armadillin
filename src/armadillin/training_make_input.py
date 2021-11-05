@@ -176,8 +176,8 @@ if True:
         for record in SeqIO.parse(handle, "fasta"):
             pbar.update(1)
             total +=1
-            if total>10000:
-                break
+            #if total>10000:
+            #    break
             epi = record.id
             seq = str(record.seq)
             try:
