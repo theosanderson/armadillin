@@ -50,7 +50,7 @@ class TrainingInput(object):
     def yield_examples(self,shards):
         while True:
             for shard_num in shards:
-                file = gzip.open(f"{self.path}/shard_{shard_num}.tsv.gz")
+                file = gzip.open(f"{self.path}/shard_{shard_num}.tsv.gz","rt")
                 for line in file:
                     epi, seq, lineage = line.strip().split("\t")
 
