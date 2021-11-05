@@ -2,6 +2,7 @@ from . import input
 import pandas as pd
 import numpy as np
 import lzma
+import gzip
 
 import random
 
@@ -49,7 +50,7 @@ class TrainingInput(object):
     def yield_examples(self,shards):
         while True:
             for shard_num in shards:
-                file = lzma.open(f"{self.path}/shard_{shard_num}.tsv.xz")
+                file = gzip.open(f"{self.path}/shard_{shard_num}.tsv.gz")
                 for line in file:
                     epi, seq, lineage = line.strip().split("\t")
 
