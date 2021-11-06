@@ -1,3 +1,4 @@
+
 import numpy as np
 import pandas as pd
 from Bio import SeqIO
@@ -13,7 +14,13 @@ import os
 import io
 
 from collections import defaultdict
-
+try:
+    from . import helpers_compiled
+except ImportError:
+    print("Attempting pyximport")
+    import pyximport
+    pyximport.install()
+    from . import helpers_compiled
 
 
 class Input(object):
@@ -61,10 +68,33 @@ class Input(object):
         return self.character_lookup_table[as_numbers]
 
 
+    def extract_numpy_features(self,seq,mask_positions, mask_values):
+        to_output = np.zeros(len(mask_positions))
+        for index_mask in range(len(mask_positions)):
+            if seq[mask_positions[index_mask]] == mask_values[index_mask]:
+                to_output[index_mask] = 1
+        return to_output
 
 
-    
 
+
+    def masked_iterator(self,iterator, mask):
+  
+        mask_positions = []
+        mask_values = []
+
+        for index_full in mask:
+            mask_positions.append(index_full//len(alphabet))
+            mask_values.append(alphabet[index_full%len(alphabet)])
+
+        mask_positions = np.array(mask_positions, dtype=np.int32)
+        mask_values = np.array(mask_values)
+        mask_values = mask_values.view(np.int32)
+     
+        for seq_id, seq in iterator:
+            seq = seq.lower()
+            to_output = helpers_compiled.extract_numpy_features(seq.encode("utf-8"), mask_positions, mask_values)
+            yield seq_id, to_output
 
 
 

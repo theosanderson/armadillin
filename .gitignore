@@ -5,3 +5,10 @@ src/wandb/*
 src/checkpoints*
 src/non_sparse*
 .venv/**
+**/*.pyc
+build/**
+**/*.egg-info
+**/*.checkpoints
+dist/*
+**/*.c
+src/armadillin/_version.py
