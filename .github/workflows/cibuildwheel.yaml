@@ -39,7 +39,7 @@ jobs:
     steps:
       - name: Build a binary wheel and a source tarball
         run: >-
-          pip install numpy
+          pip install numpy cython
       - uses: actions/checkout@v2
 
       - uses: actions/setup-python@v2
