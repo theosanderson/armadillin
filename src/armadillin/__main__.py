@@ -4,7 +4,10 @@ import json
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("fasta_file",
-                       help="Fasta file (must be already aligned to ref)", type=str)
+                       help="Fasta file (must be already aligned to ref)", nargs='?',type=str, default=None)
+
+argparser.add_argument('--update',
+help = "Updates tool and model to latest versions", action = "store_true")
 
 argparser.add_argument("--detailed_predictions",
                        help="Save detailed predictions",
@@ -25,11 +28,23 @@ argparser.add_argument("--chunk_size",
                           help="Chunk size for predictions",
                           type=int, default=1000)
 
+
 args = argparser.parse_args()
 
 
 import os
 import pandas as pd
+
+if args.update:
+    import subprocess
+    answer1 = subprocess.check_output(["pip", "install", "-U", "armadillin"])
+    answer2 = subprocess.check_output(["pip", "install", "-U", "armadillin_model"])
+    print("Armadillin should now be up to date")
+    sys.exit(0)
+
+if not args.fasta_file:
+    print("No fasta file provided")
+    sys.exit(1)
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 
@@ -45,7 +60,7 @@ import pkg_resources
 
 print("Welcome to Armadillin", file=sys.stderr)
 print("", file=sys.stderr)
-input_helper = input.Input(pkg_resources.resource_filename("armadillin", "trained_model"))
+input_helper = input.Input(pkg_resources.resource_filename("armadillin-model", "trained_model"))
 
 
 def get_result(result):
@@ -79,9 +94,9 @@ def do_predictions(sequence_names, sequence_numpys):
 
 
 if not args.custom_full_model:
-    model = modelling.load_saved_model(pkg_resources.resource_filename(__name__, 'trained_model/model_small.h5'))
+    model = modelling.load_saved_model(pkg_resources.resource_filename("armadillin-model", 'trained_model/model_small.h5'))
     #model, mask = modelling.create_pretrained_pruned_model(model)
-    mask = json.load(open(pkg_resources.resource_filename(__name__, 'trained_model/mask_small.json')))
+    mask = json.load(open(pkg_resources.resource_filename("armadillin-model", 'trained_model/mask_small.json')))
 
 else:
     model = modelling.load_saved_model(args.custom_full_model)
