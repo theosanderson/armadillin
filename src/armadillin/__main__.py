@@ -9,6 +9,9 @@ argparser.add_argument("fasta_file",
 argparser.add_argument('--update',
 help = "Updates tool and model to latest versions", action = "store_true")
 
+argparser.add_argument('--seqs_are_aligned',
+help = "Set this if sequences are already aligned to reference, will skip alignment", action = "store_true")
+
 argparser.add_argument("--detailed_predictions",
                        help="Save detailed predictions",
                        action="store_true")
@@ -27,6 +30,8 @@ argparser.add_argument("--custom_full_model",
 argparser.add_argument("--chunk_size",
                           help="Chunk size for predictions",
                           type=int, default=1000)
+
+argparser.add_argument('--max_alignment_threads', help='Max number of threads for alignment', type=int, default=None)
 
 
 args = argparser.parse_args()
@@ -91,7 +96,9 @@ def do_predictions(sequence_names, sequence_numpys):
         lineage, details = get_result(result)
         print(f"{sequence_names[i]}\t{lineage}{details}")
 
-
+def truncate(iterator):
+    for id, seq in iterator:
+        yield id, seq[0:29891]
 
 if not args.custom_full_model:
     model = modelling.load_saved_model(pkg_resources.resource_filename("armadillin-model", 'trained_model/model_small.h5'))
@@ -105,7 +112,8 @@ else:
 
 
 filename = args.fasta_file
-input_iterator = input_helper.yield_from_fasta(filename)
+input_iterator = input_helper.yield_from_fasta(filename, args.seqs_are_aligned,max_threads=args.max_alignment_threads)
+input_iterator = truncate(input_iterator)
 input_iterator = input_helper.masked_iterator(input_iterator, mask)
 
 
