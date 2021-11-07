@@ -12,7 +12,7 @@ alphabet = "acgt-"
 import gzip
 import os
 import io
-import pylign
+import flowalign
 import sys
 
 from collections import defaultdict
@@ -141,13 +141,13 @@ class Input(object):
             for record in SeqIO.parse(handle, "fasta"):
                 yield record.id, str(record.seq)
         else:
-            print("Using pylign for alignment", file=sys.stderr)
+            print("Using flowalign for alignment", file=sys.stderr)
             reference_filename = pkg_resources.resource_filename("armadillin-model", "trained_model/reference.fa")
             print(f"Using reference file {reference_filename}",file= sys.stderr)
             if max_threads:
-                iterator = pylign.yield_aligned(input = handle, reference = reference_filename,threads= max_threads)
+                iterator = flowalign.yield_aligned(input = handle, reference = reference_filename,threads= max_threads)
             else:
-                iterator =  pylign.yield_aligned(input = handle, reference = reference_filename)
+                iterator =  flowalign.yield_aligned(input = handle, reference = reference_filename)
             for example in iterator:
                 yield example
 
