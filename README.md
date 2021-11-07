@@ -18,9 +18,7 @@ pip3 install armadillin
 
 ## Usage
 
-You must already have aligned your files to the reference (doing this automatically is on the backlist).
-
-We'll use the COG-UK aligned file for a demo:
+We'll use a COG-UK file for a demo:
 
 ```
 wget https://cog-uk.s3.climb.ac.uk/phylogenetics/latest/cog_alignment.fasta.gz
