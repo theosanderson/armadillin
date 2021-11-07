@@ -108,10 +108,10 @@ class Input(object):
 
 
     def yield_from_fasta(self, filename, already_aligned=True, max_threads = None):
-        print(f"Attempting to read from fasta file {filename}", sys.stderr)
+        print(f"Attempting to read from fasta file {filename}",file= sys.stderr)
         if filename.endswith(".gz"):
             handle = gzip.open(filename, "rt")
-            print("Using gzip mode", sys.stderr)
+            print("Using gzip mode", file=sys.stderr)
         elif filename.endswith("tar.xz"):
             tar = tarfile.open(filename, "r:xz")
             members = tar.getmembers()
@@ -119,14 +119,14 @@ class Input(object):
             largest_member = max(members, key=lambda x: x.size)
             handle = tar.extractfile(largest_member)
             handle = io.TextIOWrapper(handle, encoding='windows-1252') 
-            print("Using largest file as handle", sys.stderr)
-            print("Using tarxz mode", sys.stderr)
+            print("Using largest file as handle", file=sys.stderr)
+            print("Using tarxz mode", file=sys.stderr)
         elif filename.endswith(".xz"):
             handle = lzma.open(filename, "rt")
-            print("Using xz mode", sys.stderr)
+            print("Using xz mode", file=sys.stderr)
         elif filename.endswith(".zip"):
-            print("Using zip mode", sys.stderr)
-            print(f"Opening {filename} as zip", sys.stderr)
+            print("Using zip mode", file=sys.stderr)
+            print(f"Opening {filename} as zip", file=sys.stderr)
             the_zip = zipfile.ZipFile(filename)
             # iterate through all files recursively and find "genomic.fna"
             for member in the_zip.infolist():
@@ -135,15 +135,15 @@ class Input(object):
                     break
                 raise ValueError("Could not find genomic.fna in zip file")
         else:
-            print("Using text mode", sys.stderr)
+            print("Using text mode",file= sys.stderr)
             handle = open(filename, "rt")
         if already_aligned:
             for record in SeqIO.parse(handle, "fasta"):
                 yield record.id, str(record.seq)
         else:
-            print("Using pylign for alignment", sys.stderr)
+            print("Using pylign for alignment", file=sys.stderr)
             reference_filename = pkg_resources.resource_filename("armadillin-model", "trained_model/reference.fa")
-            print(f"Using reference file {reference_filename}", sys.stderr)
+            print(f"Using reference file {reference_filename}",file= sys.stderr)
             if max_threads:
                 iterator = pylign.yield_aligned(input = handle, reference = reference_filename,threads= max_threads)
             else:
