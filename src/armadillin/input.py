@@ -13,6 +13,7 @@ import gzip
 import os
 import io
 import pylign
+import sys
 
 from collections import defaultdict
 try:
