@@ -4,7 +4,7 @@ import json
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("fasta_file",
-                       help="Fasta file (must be already aligned to ref)", nargs='?',type=str, default=None)
+                       help="Fasta file", nargs='?',type=str, default=None)
 
 argparser.add_argument('--update',
 help = "Updates tool and model to latest versions", action = "store_true")
