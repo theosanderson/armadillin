@@ -72,6 +72,8 @@ def get_result(result):
     positive = np.where(result > args.threshold)[0]
     
     positive_lineages = [input_helper.all_lineages[x] for x in positive]
+    if len(positive_lineages)==0:
+      return "",""
     positive_values = [result[x] for x in positive]
     levels = [input_helper.lineage_to_level[x] for x in positive_lineages]
     max_level = max(levels)
