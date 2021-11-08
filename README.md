@@ -8,11 +8,16 @@ Armadillin is an experimental alternative approach to training models on [lineag
 
 Armadillin uses dense neural networks for assignment, which means it doesn't have to assume that positions with an N are the reference sequence. Armadillin is still very fast, in part because it sparsifies the feature input to this neural net during training.
 
-## Installation (for inference)
+## Installation
 
+### With pipx (self-contained)
 ```
-conda create --name armadillin python=3.9
-conda activate armadillin
+pip install --local pipx
+pipx install  armadillin
+```
+
+### In your environment
+```
 pip3 install armadillin
 ```
 
