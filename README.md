@@ -10,13 +10,13 @@ Armadillin uses dense neural networks for assignment, which means it doesn't hav
 
 ## Installation
 
-### With pipx (self-contained)
+### With pipx (self-contained):
 ```
 pip install --local pipx
 pipx install  armadillin
 ```
 
-### In your environment
+### or in your environment:
 ```
 pip3 install armadillin
 ```
