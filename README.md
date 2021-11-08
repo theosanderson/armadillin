@@ -34,7 +34,7 @@ or
 armadillin sequences.fasta.xz > output.tsv
 ```
 
-If you have sequences already aligned to the reference you can make inference much faster with 
+If you have sequences already aligned to the reference you can make inference much faster using the `--seqs_are_aligned` parameter: 
 
 ```
 wget https://data.nextstrain.org/files/ncov/open/global/aligned.fasta.xz
