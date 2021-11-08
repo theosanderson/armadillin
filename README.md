@@ -18,33 +18,27 @@ pip3 install armadillin
 
 ## Usage
 
-We'll use a COG-UK file for a demo:
+We'll use a NextStrain open sampled file for a demo:
 
 ```
-wget https://cog-uk.s3.climb.ac.uk/phylogenetics/latest/cog_alignment.fasta.gz
+wget https://data.nextstrain.org/files/ncov/open/global/sequences.fasta.xz
 ```
 
 ```
-armadillin https://cog-uk.s3.climb.ac.uk/phylogenetics/latest/cog_alignment.fasta.gz
+armadillin sequences.fasta.xz
 ```
 
 or
 
 ```
-armadillin https://cog-uk.s3.climb.ac.uk/phylogenetics/latest/cog_alignment.fasta.gz > output.tsv
+armadillin sequences.fasta.xz > output.tsv
 ```
 
-## Training your own models
-
-### Dataset generation
+If you have sequences already aligned to the reference you can make inference much faster with 
 
 ```
-python -m armadillin.training_make_input --designations ~/gisaid/pango-designation-1.2.88/ --gisaid_meta_file ~/gisaid/metadata.tsv --gisaid_mmsa ~/gisaid/msa_2021-10-20.tar.xz --output ~/training_set_nov_02
- python -m armadillin.train --shard_dir /home/theo/training_set_nov_02 --use_wandb --checkpoint_path ~/nov2check1
-
- python -m armadillin.train --starting_model ~/nov2check1/checkpoint.h5 --use_wandb --checkpoint_path ~/nov2check1_sparse/ --do_pruning --shard_dir /home/theo/training_set_nov_02
-
- python -m armadillin.training_create_small_model -i /tmp/model_zeros.h5 -d  /home/theo/training_set_nov_02
+wget https://data.nextstrain.org/files/ncov/open/global/aligned.fasta.xz
+armadillin aligned.fasta.xz --seqs_are_aligned > output.tsv
 ```
 
 ## Related tools
