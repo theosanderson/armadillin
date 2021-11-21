@@ -34,6 +34,8 @@ class Input(object):
         self.all_lineages = [x.strip() for x in open(os.path.join(path, "all_lineages.txt"))]
         self.lineage_to_index = {x:i for i, x in enumerate(self.all_lineages)}
         self.aliases['XA'] = 'B.1'
+        self.aliases['XB'] = 'B.1'
+        self.aliases['XC'] = 'B.1'
         self.lineage_to_level = {x:self.get_unaliased_lineage(x).count(".") for x in self.all_lineages}
 
     def string_to_ints(self, string):
